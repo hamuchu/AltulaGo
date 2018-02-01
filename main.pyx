@@ -296,5 +296,8 @@ if __name__ == '__main__':
     #gtp_io()
     #GoGUIを使わないモードの場合は以下を有効にする。
 
-    from train_network_batchnorm import Train
+    #from train_network_batchnorm import Train
+    #Train()
+
+    from train_network import Train
     Train()

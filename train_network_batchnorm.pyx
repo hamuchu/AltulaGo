@@ -2,7 +2,9 @@
 # TODO: batchでまんべんなくデータが含まれるようにする。
 # TODO: オブジェクトだからこのファイルを実行しても何も起きないので、mainから実行する。
 # sgf読み込みで新しい棋譜になったら盤面を初期化する
-import pyximport; pyximport.install()
+import pyximport;
+
+pyximport.install()
 import sgf  # Please install "sgf 0.5". You can install it by using the command of "pip install sgf".
 import re
 import os  # osモジュールのインポート
@@ -22,6 +24,8 @@ import sys
 import datetime
 import numpy as np
 import tensorflow as tf
+import pickle
+
 #from tensorflow.python import control_flow_ops
 
 
@@ -65,7 +69,7 @@ class Train(GoVariable):
         rot90(board_array)
         return board_array
 
-    def make_rotated_train_batch(self,xTrain,yTrain,input_board,answer_board):
+    def make_rotated_train_batch(self, xTrain, yTrain, input_board, answer_board):
         xTrain.append(self.reshape_board(input_board))
         yTrain.append(self.reshape_answer_board(answer_board))
         # print self.reshape_answer_board(answer_board)
@@ -105,7 +109,7 @@ class Train(GoVariable):
         xTrain.append(self.reshape_board(input_board8))
         yTrain.append(self.reshape_answer_board(answer_board8))
 
-        return xTrain,yTrain
+        return xTrain, yTrain
 
     def train(self):
         players = [Player(0.0, 'human'), Player(1.0, 'human')]
@@ -129,76 +133,71 @@ class Train(GoVariable):
         batch_count_sum_all = 0
         character_list = [chr(i) for i in range(97, 97 + 26)]
 
-        for _ in xrange(100):
-            print("kifu passed")
-            continue_kifu_num = 0
-            for file_name in files:
-                # print h.heap()
-                continue_kifu_num += 1
-                if continue_kifu_num < 150:
-                     continue
+        print("kifu passed")
+        continue_kifu_num = 0
+        for file_name in files:
+            # print h.heap()
+            continue_kifu_num += 1
+            if continue_kifu_num < 150:
+                continue
 
-                step += 1
-                with open(os.getcwd() + "/../../kifu/" + file_name) as f:
-                    try:
-                        collection = sgf.parse(f.read())
-                        flag = False
-                    except:
-                        continue
-                    try:
-                        go_state_obj = GoStateObject()
+            step += 1
+            with open(os.getcwd() + "/../../kifu/" + file_name) as f:
+                try:
+                    collection = sgf.parse(f.read())
+                    flag = False
+                except:
+                    continue
+                try:
+                    go_state_obj = GoStateObject()
 
-                        # print "通過"
-                        for game in collection:
-                            for node in game:
-                                if flag == False:
-                                    flag = True
-                                    continue
+                    # print "通過"
+                    for game in collection:
+                        for node in game:
+                            if flag == False:
+                                flag = True
+                                continue
 
-                                position = list(node.properties.values())[0]
-                                xpos = character_list.index(position[0][0])
-                                ypos = character_list.index(position[0][1])
+                            position = list(node.properties.values())[0]
+                            xpos = character_list.index(position[0][0])
+                            ypos = character_list.index(position[0][1])
 
-                                pos_tuple = (xpos, ypos)
-                                # print xpos,ypos
-                                #print(pos_tuple)
-                                color=list(node.properties.keys())[0]
-                                if color == "B":
-                                    current_player = players[0]
-                                elif color=='W':
-                                    current_player = players[1]
-                                # print "move ends"
-                                num += 1
-                                if num > 90:
-                                    input_board = make_input.generate_input(go_state_obj, current_player)
-                                    answer_board = make_input.generate_answer(pos_tuple)
+                            pos_tuple = (xpos, ypos)
+                            # print xpos,ypos
+                            #print(pos_tuple)
+                            color = list(node.properties.keys())[0]
+                            if color == "B":
+                                current_player = players[0]
+                            elif color == 'W':
+                                current_player = players[1]
+                            # print "move ends"
+                            num += 1
+                            if num > 90:
+                                input_board = make_input.generate_input(go_state_obj, current_player)
+                                answer_board = make_input.generate_answer(pos_tuple)
 
-                                    xTrain,yTrain = self.make_rotated_train_batch(xTrain,yTrain,input_board,answer_board)
+                                xTrain, yTrain = self.make_rotated_train_batch(xTrain, yTrain, input_board,
+                                                                               answer_board)
 
-                                    num = 0
-                                    batch_count_num += 1
+                                num = 0
+                                batch_count_num += 1
 
-                                # 注意　moveはinputを作成した後にすること。
-                                go_state_obj = rule.move(go_state_obj, current_player, pos_tuple)
-                                rule.move(go_state_obj, current_player, pos_tuple)
+                            # 注意　moveはinputを作成した後にすること。
+                            go_state_obj = rule.move(go_state_obj, current_player, pos_tuple)
+                            rule.move(go_state_obj, current_player, pos_tuple)
 
-                                if batch_count_num > 50:
-                                    np.savez_compressed('./npzkifu/kifu'+str(train_count_num)+'.npz', x=xTrain, y=yTrain)
-                                    #train_step.run(feed_dict={x_input: xTrain, y_: yTrain, keep_prob: 0.5})
+                            if batch_count_num > 50:
+                                np.savez_compressed('./npzkifu/kifu' + str(train_count_num) + '.npz', x=xTrain, y=yTrain)
+                                #train_step.run(feed_dict={x_input: xTrain, y_: yTrain, keep_prob: 0.5})
 
-                                    batch_count_sum_all += 1
-                                    batch_count_num = 0
-                                    train_count_num += 1
-                                    xTrain = []
-                                    yTrain = []
-                                    print(train_count_num)
-                                if train_count_num > 1000:
-                                    train_count_num = 0
-                                    ckpt_num += 1
-                                    print("SAVED!")
+                                batch_count_sum_all += 1
+                                batch_count_num = 0
+                                train_count_num += 1
+                                xTrain = []
+                                yTrain = []
+                                print(train_count_num)
 
-                                    saver.save(sess, './Network/policy_legal_move' + str(ckpt_num))
-                    except:
-                        traceback.print_exc()
-                        f.close()
-                        pass
+                except:
+                    traceback.print_exc()
+                    f.close()
+                    pass
