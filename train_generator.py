@@ -148,9 +148,10 @@ train_datagen = ImageDataGenerator()
 model = Network()
 model.fit_generator(
     generator=train_datagen.flow_from_directory(),
-    steps_per_epoch=100,epochs=1,verbose=1)
+    steps_per_epoch=500000,epochs=1,verbose=1)
 
-model.save('../Network/model.hdf5')
+model.save_weights('../Network/model.hdf5')
+
 
 #int(np.ceil(len(list(train_dir.iterdir())) / 32))
 
