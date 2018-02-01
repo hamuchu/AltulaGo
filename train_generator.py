@@ -76,10 +76,10 @@ def Network():
         model.add(Activation('relu'))
         model.add(Dropout(0.5))
         model.add(Dense(361))
-        model.add(Activation('softmax'))
+        model.add(Activation('linear'))
 
         # initiate RMSprop optimizer
-        opt = keras.optimizers.rmsprop(lr=0.00001, decay=1e-6)
+        opt = keras.optimizers.rmsprop(lr=0.000001, decay=1e-13)
 
         model.compile(loss='categorical_crossentropy',
                       optimizer=opt,
@@ -105,7 +105,7 @@ def Network():
             model.fit(x=xTrain, y=yTrain, shuffle=True, batch_size=100, epochs=2)
         model.save('../Network/model' + str(i) + '.hdf5')
 '''
-
+from sklearn.utils import shuffle
 class ImageDataGenerator(object):
     def __init__(self):
         self.reset()
@@ -120,25 +120,24 @@ class ImageDataGenerator(object):
             # ディレクトリから画像のパスを取り出す
             for path in pathlib.Path(train_dir).iterdir():
                 print(path)
-                if path == "../KifuLarge/KifuLargeFile3000.npz":
-                    print("load is done. successfully loaded")
-                    exit(0)
                 # 画像を読み込みRGBへの変換、Numpyへの変換を行い、配列(self.iamges)に格納
 
                 self.images = np.reshape(np.load(path)["x"],(204000,5,19,19))
                 self.labels = np.load(path)["y"]
 
+                self.images, self.labels = shuffle(self.images,self.labels)
+
                 # ここまでを繰り返し行い、batch_sizeの数だけ配列(self.iamges, self.labels)に格納
                 # batch_sizeの数だけ格納されたら、戻り値として返し、配列(self.iamges, self.labels)を空にする
                 inputs = np.asarray(self.images, dtype=np.float32)
                 targets = np.asarray(self.labels, dtype=np.float32)
-
-                for i in range(0,int(inputs.size/50)):
-                    if int(inputs.size/50)-1==i:
+                batch_size=400
+                for i in range(0,int(inputs.size/batch_size)):
+                    if int(inputs.size/batch_size)-1==i:
                         yield inputs[i:], targets[i:]
                     else:
-                        yield inputs[i:i+50], targets[i:i+50]
-
+                        yield inputs[i:i+batch_size], targets[i:i+batch_size]
+                #exit(0)
 
 
 train_dir = pathlib.Path('../KifuLarge')
@@ -146,9 +145,10 @@ train_datagen = ImageDataGenerator()
 
 
 model = Network()
+#model.load_weights('../Network/model.hdf5')
 model.fit_generator(
     generator=train_datagen.flow_from_directory(),
-    steps_per_epoch=500000,epochs=1,verbose=1)
+    steps_per_epoch=1500000,epochs=1,verbose=1)
 
 model.save_weights('../Network/model.hdf5')
 
