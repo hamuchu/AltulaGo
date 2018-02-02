@@ -131,10 +131,10 @@ class ImageDataGenerator(object):
                 # batch_sizeの数だけ格納されたら、戻り値として返し、配列(self.iamges, self.labels)を空にする
                 inputs = np.asarray(self.images, dtype=np.float32)
                 targets = np.asarray(self.labels, dtype=np.float32)
-                batch_size=400
+                batch_size=500
                 for i in range(0,int(inputs.size/batch_size)):
                     if int(inputs.size/batch_size)-1==i:
-                        yield inputs[i:], targets[i:]
+                        pass
                     else:
                         yield inputs[i:i+batch_size], targets[i:i+batch_size]
                 #exit(0)
@@ -146,11 +146,15 @@ train_datagen = ImageDataGenerator()
 
 model = Network()
 #model.load_weights('../Network/model.hdf5')
+import keras
+fpath = '../Network/weights{epoch:02d}.hdf5'
+model_callback = keras.callbacks.ModelCheckpoint(filepath = fpath, verbose=1,mode='auto')
+
 model.fit_generator(
     generator=train_datagen.flow_from_directory(),
-    steps_per_epoch=1500000,epochs=1,verbose=1)
+    steps_per_epoch=204000,epochs=20,verbose=2,callbacks=[model_callback])
 
-model.save_weights('../Network/model.hdf5')
+model.save_weights('../Network/model_final.hdf5')
 
 
 #int(np.ceil(len(list(train_dir.iterdir())) / 32))
