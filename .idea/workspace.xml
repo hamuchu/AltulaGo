@@ -2,15 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="140bbeb9-72ee-4a62-a532-e05dd91f8191" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/predict.py" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/forward_prop_network.pyx" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/game.pyx" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/input_plane.pyx" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/main.pyx" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/search.pyx" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/shuffle_sgf.pyx" afterPath="$PROJECT_DIR$/shuffle_sgf.pyx" />
-      <change beforePath="$PROJECT_DIR$/train_generator.py" afterPath="$PROJECT_DIR$/train_generator.py" />
+      <change beforePath="$PROJECT_DIR$/forward_prop_network.py" afterPath="$PROJECT_DIR$/forward_prop_network.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -21,7 +13,7 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="train_generator.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="train_generator.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/train_generator.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="383">
@@ -41,10 +33,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="forward_prop_network.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="forward_prop_network.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/forward_prop_network.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-188">
+            <state relative-caret-position="298">
               <caret line="37" column="53" lean-forward="false" selection-start-line="37" selection-start-column="53" selection-end-line="37" selection-end-column="53" />
               <folding />
             </state>
@@ -102,8 +94,8 @@
         <option value="$PROJECT_DIR$/main.py" />
         <option value="$PROJECT_DIR$/input_plane.py" />
         <option value="$PROJECT_DIR$/search.py" />
-        <option value="$PROJECT_DIR$/forward_prop_network.py" />
         <option value="$PROJECT_DIR$/train_generator.py" />
+        <option value="$PROJECT_DIR$/forward_prop_network.py" />
       </list>
     </option>
   </component>
@@ -287,14 +279,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/forward_prop_network.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-188">
-          <caret line="37" column="53" lean-forward="false" selection-start-line="37" selection-start-column="53" selection-end-line="37" selection-end-column="53" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/search.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="720">
@@ -315,6 +299,14 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="383">
           <caret line="85" column="0" lean-forward="true" selection-start-line="85" selection-start-column="0" selection-end-line="85" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/forward_prop_network.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="298">
+          <caret line="37" column="53" lean-forward="false" selection-start-line="37" selection-start-column="53" selection-end-line="37" selection-end-column="53" />
           <folding />
         </state>
       </provider>
