@@ -36,7 +36,7 @@ class MakeInputPlane(GoVariable):
 
     def make_legal_move(self,go_state_obj,player):
         #next_moves=self.rule.next_moves(go_state_obj,player)
-        legal_board=[[float(1) if self.rule.valid_move_public(go_state_obj,player,(x,y)) else float(0) for x in xrange(self.rule._SIZE)] for y in xrange(self.rule._SIZE)]
+        legal_board=[[float(1) if self.rule.valid_move_public(go_state_obj,player,(x,y)) else float(0) for x in range(self.rule._SIZE)] for y in range(self.rule._SIZE)]
         #print legal_board
         return legal_board
 
@@ -44,19 +44,19 @@ class MakeInputPlane(GoVariable):
         self.MY_COLOR = player.player_id
         player = player.next_player_func()
         self.OPPONENT = player.player_id
-        black_board = [[float(1) if go_state_obj._board[y][x] == self.MY_COLOR else float(0) for x in xrange(self.rule._SIZE)] for y in xrange(self.rule._SIZE)]
+        black_board = [[float(1) if go_state_obj._board[y][x] == self.MY_COLOR else float(0) for x in range(self.rule._SIZE)] for y in range(self.rule._SIZE)]
         return black_board
     def make_opponent_board(self, go_state_obj, player):
         self.OPPONENT = player.player_id
         player = player.next_player_func()
         self.MY_COLOR = player.player_id
-        white_board = [[float(1) if go_state_obj._board[y][x] == self.MY_COLOR else float(0) for x in xrange(self.rule._SIZE)] for y in xrange(self.rule._SIZE)]
+        white_board = [[float(1) if go_state_obj._board[y][x] == self.MY_COLOR else float(0) for x in range(self.rule._SIZE)] for y in range(self.rule._SIZE)]
         return white_board
 
     def make_turns_since(self, go_state_obj, player):
 
-        return [[float(go_state_obj._turns_since_board[y][x]) / 4 for x in xrange(self.rule._SIZE)] for y in
-                xrange(self.rule._SIZE)]
+        return [[float(go_state_obj._turns_since_board[y][x]) / 4 for x in range(self.rule._SIZE)] for y in
+                range(self.rule._SIZE)]
 
     def make_dame_board_mycolor(self,go_state_obj,player):
         #sys.stderr.write(str(self.rule.print_board(go_state_obj)))
@@ -111,7 +111,7 @@ class MakeInputPlane(GoVariable):
         #next_move_list = self.rule.next_moves(go_state_obj, player)
         #capture_size_board = [[float(self.count_captures((x, y), copy.deepcopy(go_state_obj._board), player)) if (x,y) in next_move_list else float(0) for x in xrange(self.rule._SIZE)] for y in xrange(self.rule._SIZE)]
 
-        capture_size_board = [[float(self.count_captures((x, y), copy.deepcopy(go_state_obj._board), player)) if self.rule.valid_move_public(go_state_obj,player,(x,y)) else float(0) for x in xrange(self.rule._SIZE)] for y in xrange(self.rule._SIZE)]
+        capture_size_board = [[float(self.count_captures((x, y), copy.deepcopy(go_state_obj._board), player)) if self.rule.valid_move_public(go_state_obj,player,(x,y)) else float(0) for x in range(self.rule._SIZE)] for y in range(self.rule._SIZE)]
 
         return capture_size_board
 
@@ -120,7 +120,7 @@ class MakeInputPlane(GoVariable):
         self.OPPONENT = player.next_player_func().player_id
         #next_move_list = self.rule.next_moves(go_state_obj, player)
 
-        capture_size_board = [[float(self.count_captures((x, y), copy.deepcopy(go_state_obj._board), player)) if self.rule.valid_move_public(go_state_obj,player,(x,y)) else float(0) for x in xrange(self.rule._SIZE)] for y in xrange(self.rule._SIZE)]
+        capture_size_board = [[float(self.count_captures((x, y), copy.deepcopy(go_state_obj._board), player)) if self.rule.valid_move_public(go_state_obj,player,(x,y)) else float(0) for x in range(self.rule._SIZE)] for y in range(self.rule._SIZE)]
 
         return capture_size_board
 

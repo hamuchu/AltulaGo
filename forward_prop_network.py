@@ -19,98 +19,65 @@ from go import GoVariable
 from go import GoStateObject
 from numpy import *
 
-'''パスはどうする？forwardした結果一番良い答えがパスかもしれない'''
-import sys
-
-reload(sys)
-sys.stderr.write(str(sys.setdefaultencoding('utf-8')))
-
+from keras.utils import Sequence
+from pathlib import Path
+import numpy as np
+from keras.utils import np_utils
+from keras.models import Sequential
+from keras.layers import Dense, Dropout, Activation, Flatten, Reshape
+from keras.layers import Conv2D, MaxPooling2D
+from keras.layers.normalization import BatchNormalization
+import keras
 class ForwardPropNetwork(GoVariable):
     character_list = [chr(i) for i in range(97, 97 + 26)]
 
     def __init__(self,sess):
         self.make_input = MakeInputPlane()
 
-        self.train(sess)
-        sys.stderr.write(str("train_ended"))
-        self._main(sess)
+        self.model=self.Network()
+        self.model.load_weights('../Network/weights01.hdf5')
 
-    def reshape_board(self, board_array):
-        reshaped_boards = []
-        for i in xrange(len(board_array)):
-            reshaped_boards.append(reshape(board_array[i], 361))
+        sys.stderr.write(str("Network Model builded"))
 
-        return reshaped_boards
 
-    def weight_variable(self, shape):
-        """適度にノイズを含んだ（対称性の除去と勾配ゼロ防止のため）重み行列作成関数
-        """
+    def Network(self):
+        model = Sequential()
+        # model.add(Reshape((5,19,19)))
+        model.add(Conv2D(128, (4, 4), padding='same', input_shape=(5, 19, 19)))
+        model.add(Activation('relu'))
+        model.add(Conv2D(128, (2, 2), padding='same'))
+        model.add(Activation('relu'))
 
-        initial = tf.truncated_normal(shape, stddev=0.1)
-        return tf.Variable(initial)
+        model.add(Conv2D(128, (2, 2), padding='same'))
+        model.add(Activation('relu'))
+        model.add(Conv2D(128, (2, 2), padding='same'))
+        model.add(Activation('relu'))
 
-    def bias_variable(self, shape):
-        """バイアス行列作成関数
-        """
-        initial = tf.constant(0.1, shape=shape)
-        return tf.Variable(initial)
+        model.add(Conv2D(128, (2, 2), padding='same'))
+        model.add(Activation('relu'))
 
-    def conv2d(self, x, W):
-        """2次元畳み込み関数
-        """
-        return tf.nn.conv2d(x,
-                            W,
-                            strides=[1, 1, 1, 1],  # 真ん中2つが縦横のストライド 1,1で画像が小さくならない
-                            padding='SAME')
+        model.add(Flatten())
+        model.add(Dense(500))
+        model.add(Activation('relu'))
+        model.add(Dropout(0.5))
+        model.add(Dense(361))
+        model.add(Activation('linear'))
 
-    def max_pool_2x2(self, x):
-        """2x2マックスプーリング関数
-        """
+        # initiate RMSprop optimizer
+        opt = keras.optimizers.rmsprop(lr=0.000001, decay=1e-13)
 
-        return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 1, 1, 1], padding='SAME')
+        model.compile(loss='categorical_crossentropy',
+                      optimizer=opt,
+                      metrics=['accuracy'])
 
-    def get_particular_variables(self,name):
-        return {v.name: v for v in tf.global_variables() if v.name.find(name) >= 0}
+        return model
 
-    def batch_normalization(self,shape, input):
-        eps = 1e-5
-        gamma = self.weight_variable([shape])
-        beta =  self.weight_variable([shape])
-        mean, variance = tf.nn.moments(input, [0])
-        return gamma * (input - mean) / tf.sqrt(variance + eps) + beta
 
-    def train(self,sess):
-        with tf.device("/cpu:0"):
-             with tf.variable_scope('fast'):
-                phase_train = tf.placeholder(tf.bool, name='phase_train')
-                # 5290000=23*23*100*100  88200=21*21*
-                # データ用可変2階テンソルを用意
-                self.x_input = tf.placeholder("float", shape=[None, 8, 361])
-                # 正解用可変2階テンソルを用意
-                self.y_ = tf.placeholder("float", shape=[None, 361])
-
-                # 画像を2次元配列にリシェイプ 第1引数は画像数(-1は元サイズを保存するように自動計算)、縦x横、チャネル
-                #x_image = tf.reshape(x_input, [-1, 19, 19, 8])
-                self.x_input_flat = tf.reshape(self.x_input, [-1, 19 * 19 * 8])
-                self.weight_fully_connected1 = self.weight_variable([19 * 19 * 8,19*19+100])
-                self.bias_fc1 = self.weight_variable([19*19+100])
-                self.hidden_fully_connect1 = tf.nn.relu(tf.matmul(self.x_input_flat, self.weight_fully_connected1) + self.bias_fc1)
-                #bn_hidden1=batch_normalization(19*19+100,hidden_fully_connect1)
-                self.weight_fully_connected2 = self.weight_variable([19*19+100, 361])
-                self.bias_fc2 = self.bias_variable([361])
-                self.y_conv = tf.nn.softmax(tf.matmul(self.hidden_fully_connect1, self.weight_fully_connected2) + self.bias_fc2)
-        self.cross_entropy = -tf.reduce_sum(self.y_ * tf.log(self.y_conv))
-        self.train_step = tf.train.AdamOptimizer(1e-4).minimize(self.cross_entropy)
-        self.correct_prediction = tf.equal(tf.argmax(self.y_conv, 1), tf.argmax(self.y_, 1))
-        self.accuracy = tf.reduce_mean(tf.cast(self.correct_prediction, "float"))
-        self.init = tf.global_variables_initializer()
-        #self.saver = tf.train.Saver({'x_input':self.x_input,'y_': self.y_,'x_image':self.x_image,'x_image_pad':self.x_image_pad,'W_conv1':self.W_conv1,'b_conv1':self.b_conv1,'h_conv1':self.h_conv1,'h_pool1':self.h_pool1,'W_conv2':self.W_conv2,'b_conv2':self.b_conv2,'h_conv2':self.h_conv2,'h_pool2':self.h_pool2,'W_conv3':self.W_conv3,'b_conv3':self.b_conv3,'h_conv3':self.h_conv3,'h_pool3':self.h_pool3,'W_conv4':self.W_conv4,'b_conv4':self.b_conv4,'h_conv4':self.h_conv4,'h_pool4':self.h_pool4,'weight_fully_connected1':self.weight_fully_connected1,'bias_fc1':self.bias_fc1,'h_pool4_flat':self.h_pool4_flat,'hidden_fully_connect1':self.hidden_fully_connect1,'weight_fully_connected2':self.weight_fully_connected2,'bias_fc2':self.bias_fc2,'y_conv':self.y_conv,'train_step':self.train_step,'correct_prediction':self.correct_prediction ,'accuracy':self.accuracy,'init':self.init})
-        self.saver = tf.train.Saver(self.get_particular_variables('fast'))
-
-    def search_deep_learning(self,sess, go_state_obj, current_player):
-        xTrain = [self.reshape_board(self.make_input.generate_input(go_state_obj, current_player))]
-
-        output_array = sess.run(self.y_conv, feed_dict={self.x_input: xTrain})
+    def search_deep_learning(self,go_state_obj, current_player):
+        xTrain = np.array([self.make_input.generate_input(go_state_obj, current_player)])
+        #output_array = sess.run(self.y_conv, feed_dict={self.x_input: xTrain})
+        output_array=self.model.predict(xTrain)
+        print(output_array)
         #two_dimensional_array = tf.reshape(output_array, [-1, 19, 19, 1])
         return output_array
 
@@ -229,7 +196,7 @@ class ForwardPropNetwork(GoVariable):
             else:
                 # print 'Warning: Ignoring unknown command'
                 pass
-            print ret
+            print(ret)
             sys.stdout.flush()
     def test(self, sess):
         players = [Player(0.0, 'human'), Player(1.0, 'human')]
@@ -244,7 +211,7 @@ class ForwardPropNetwork(GoVariable):
         #print sess.run(self.y_conv, feed_dict={self.x_input: x_train})
 
     def _main(self,sess):
-        self.saver.restore(sess,'./Network_Backup/fast_policy')
+        pass
         #self.test(sess)
         #print "gtp_io"
         #gtp_io(sess)は普段はコメントアウトすること。

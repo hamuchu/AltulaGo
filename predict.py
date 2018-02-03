@@ -81,91 +81,20 @@ def Network():
         # initiate RMSprop optimizer
         opt = keras.optimizers.rmsprop(lr=0.000001, decay=1e-13)
 
-        def nan_categorical_crossentropy(y_true, y_pred):
-            return - tf.reduce_sum(y_true * (tf.log(tf.clip_by_value(y_pred,1e-10,1.0))), axis=len(y_pred.get_shape()) - 1)
-
-        model.compile(loss=nan_categorical_crossentropy,
+        model.compile(loss='categorical_crossentropy',
                       optimizer=opt,
                       metrics=['accuracy'])
 
         return model
 
 
-
-
-
-'''
-    file_lists = os.listdir("../KifuLarge/")
-    print(file_lists)
-
-    model = self.Network()
-    for i in range(0, 100):
-        for npzfile in file_lists:
-            xTrain = np.load("../KifuLarge/" + str(npzfile))["x"]
-            yTrain = np.load("../KifuLarge/" + str(npzfile))["y"]
-            print(xTrain.shape)
-            xTrain = np.reshape(xTrain, (204000, 5, 19, 19))
-            model.fit(x=xTrain, y=yTrain, shuffle=True, batch_size=100, epochs=2)
-        model.save('../Network/model' + str(i) + '.hdf5')
-'''
-from sklearn.utils import shuffle
-class ImageDataGenerator(object):
-    def __init__(self):
-        self.reset()
-
-    def reset(self):
-        self.images = None
-        self.labels = None
-
-    def flow_from_directory(self):
-
-        while True:
-            # ディレクトリから画像のパスを取り出す
-            for path in pathlib.Path(train_dir).iterdir():
-                print(path)
-                # 画像を読み込みRGBへの変換、Numpyへの変換を行い、配列(self.iamges)に格納
-
-                self.images = np.reshape(np.load(path)["x"],(204000,5,19,19))
-                self.labels = np.load(path)["y"]
-
-                self.images, self.labels = shuffle(self.images,self.labels)
-
-                # ここまでを繰り返し行い、batch_sizeの数だけ配列(self.iamges, self.labels)に格納
-                # batch_sizeの数だけ格納されたら、戻り値として返し、配列(self.iamges, self.labels)を空にする
-
-                batch_size=500
-
-                for i in range(0,203999):
-                    #print(int(self.images.size))
-                    batch_x=self.images[i:i+batch_size]
-                    batch_y=self.labels[i:i+batch_size]
-                    nan_y_num=np.argwhere(np.isnan(batch_y))
-
-                    if len(nan_y_num)==0:
-                        yield batch_x,batch_y
-                #exit(0)
-                #736440
-                #368220000
-
-
 train_dir = pathlib.Path('../KifuLarge')
 train_datagen = ImageDataGenerator()
 
-
 model = Network()
-#model.load_weights('../Network/model.hdf5')
-import keras
-fpath = '../Network/weights{epoch:02d}.hdf5'
-model_callback = keras.callbacks.ModelCheckpoint(filepath = fpath, verbose=1,mode='auto')
+model.load_weights('../Network/weights05.hdf5')
 
-
-
-model.fit_generator(
-    generator=train_datagen.flow_from_directory(),
-    steps_per_epoch=10000,epochs=20,verbose=1,callbacks=[model_callback])
-
-model.save_weights('../Network/model_final.hdf5')
-
+model.predict
 
 #int(np.ceil(len(list(train_dir.iterdir())) / 32))
 

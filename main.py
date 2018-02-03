@@ -72,7 +72,7 @@ def gtp_io():
 
     while True:
         try:
-            line = raw_input().strip()
+            line = input().strip()
             #print line
             #output_file.write(line + "\n")
         except EOFError:
@@ -299,5 +299,7 @@ if __name__ == '__main__':
     #from train_network_batchnorm import Train
     #Train()
 
-    from train_network import Train
-    Train()
+    #from train_network import Train
+    #Train()
+
+    gtp_io()

@@ -37,18 +37,19 @@ class DeepLearningSearch(GoVariable):
     x=int(pos_num - y * self.rule._SIZE)
     return (x,y)
   #don't delete the train argument. train is passed by forward_prop_network.py by (self,.....) train is forward_prop's self
-  def next_move(self,train,sess,go_state_obj, player):
-    output_board=train.search_deep_learning(sess,go_state_obj,player)
+  def next_move(self,train,go_state_obj, player):
+    output_board=train.search_deep_learning(go_state_obj,player)
 
     list_board=output_board.tolist()
+    print(list_board)
     #sys.stderr.write(str(list_board))
     next_move_list=self.rule.next_moves_flat(go_state_obj,player,True)
     #sys.stderr.write(str(next_move_list))
 
-    for y in xrange(self._SIZE):
-      for x in xrange(self._SIZE):
+    for y in range(self._SIZE):
+      for x in range(self._SIZE):
         if ([y*self._SIZE+x] not in next_move_list):
-          list_board[0][y*self._SIZE+x]=None
+          list_board[0][y*self._SIZE+x]=-1000000000
 
     flat_move=list_board[0].index(max(list_board[0]))
 
@@ -57,7 +58,7 @@ class DeepLearningSearch(GoVariable):
     if self.rule.valid_move_public(go_state_obj,player,(x,y)):
       next_move_pos = (x,y)
     else:
-      print "passssssspasssssspasssss"
+      print("passssssspasssssspasssss")
       next_move_pos=self.rule._PASS
 
     return (self.rule.move_and_return_state(go_state_obj, player, next_move_pos), next_move_pos)
@@ -186,15 +187,15 @@ class MontecarloSearch(Search,GoVariable):
     #ok_move_list=[]
     before_move=self.NoneMove
     previous_place=self.rule._PASS
-    for i in xrange(roop_num):
+    for i in range(roop_num):
         #next_states = [(state.move_and_return_state(copy.deepcopy(state._board),player, move), move)
         #            for move in state.next_moves(player)]
         if before_move != self.rule._PASS:
           (before_x,before_y) =before_move
 
         empty_list=[]
-        for x in xrange(self._SIZE):
-          for y in xrange(self._SIZE):
+        for x in range(self._SIZE):
+          for y in range(self._SIZE):
             if go_state_obj._board[y][x] != self.rule._EMPTY:
               continue
             if before_move != self.rule._PASS:
@@ -209,7 +210,7 @@ class MontecarloSearch(Search,GoVariable):
             break;
 
         go_state_obj=self.rule.move(go_state_obj,player,move)
-        print self.rule.print_board(go_state_obj)
+        print(self.rule.print_board(go_state_obj))
         player = player.next_player
         before_move=move
 
@@ -230,7 +231,7 @@ class MontecarloSearch(Search,GoVariable):
             return 0
   def create_node(self,go_state_obj,player):
     next_moves = self.rule.next_moves(go_state_obj,player)
-    print next_moves
+    print(next_moves)
     node = Node(go_state_obj)
     for move in next_moves:
       #print move
@@ -286,21 +287,21 @@ class MontecarloSearch(Search,GoVariable):
     max = -9999999
     best_child = self.NoneChild
 
-    for i in xrange(self._uct_loop):
-      print "loop"
+    for i in range(self._uct_loop):
+      print("loop")
       self._montecarlo(node,go_state_obj,player)
 
     for child in node.child:
-      print "child.games -> child.rate"
-      print child.games
-      print child.rate
+      print("child.games -> child.rate")
+      print(child.games)
+      print(child.rate)
       if child.rate > max:
         max = child.rate
         best_child = child
 
     #print state.print_board()
-    print "best_child.move============================"
-    print best_child.move
+    print("best_child.move============================")
+    print(best_child.move)
     return (self.rule.move(go_state_obj,player,best_child.move), best_child.move)
 
 class DeepLearningMontecarlo(GoVariable):
@@ -324,15 +325,15 @@ class DeepLearningMontecarlo(GoVariable):
     roop_num=board_size*board_size+50
     #ok_move_list=[]
     before_move=self.NoneMove
-    for i in xrange(roop_num):
+    for i in range(roop_num):
         #next_states = [(state.move_and_return_state(copy.deepcopy(state._board),player, move), move)
         #            for move in state.next_moves(player)]
-        (go_state_obj, move) = self.search_algorithm.next_move(self.forward_prop_network, self.sess, go_state_obj, player)
+        (go_state_obj, move) = self.search_algorithm.next_move(self.forward_prop_network, go_state_obj, player)
 
         if move=="pass" and before_move == "pass":
             break
 
-        print self.rule.print_board(go_state_obj)
+        print(self.rule.print_board(go_state_obj))
         player = player.next_player
         before_move=move
 
@@ -353,7 +354,7 @@ class DeepLearningMontecarlo(GoVariable):
             return 0
   def create_node(self,go_state_obj,player):
     next_moves = self.rule.next_moves(go_state_obj,player)
-    print next_moves
+    print(next_moves)
     node = Node(go_state_obj)
     for move in next_moves:
       #print move
@@ -409,26 +410,26 @@ class DeepLearningMontecarlo(GoVariable):
     max = -9999999
     best_child = self.NoneChild
 
-    for i in xrange(self._uct_loop):
-      print "loop"
+    for i in range(self._uct_loop):
+      print("loop")
       self._montecarlo(node,go_state_obj,player)
 
     for child in node.child:
-      print "child.games -> child.rate"
-      print child.games
-      print child.rate
+      print("child.games -> child.rate")
+      print(child.games)
+      print(child.rate)
       if child.rate > max:
         max = child.rate
         best_child = child
 
     #print state.print_board()
-    print "best_child.move============================"
-    print best_child.move
+    print("best_child.move============================")
+    print(best_child.move)
     return (self.rule.move(go_state_obj,player,best_child.move), best_child.move)
     #search_algorithm=DeepLearningSearch()
     #sess=tf.Session()
     #self.forward_prop_network=ForwardPropNetwork(sess)
-    #(go_state_obj, move) = self.search_algorithm.next_move(self.forward_prop_network, self.sess, go_state_obj, player)
+    #(go_state_obj, move) = self.search_algorithm.next_move(self.forward_prop_network, go_state_obj, player)
 
 
     '''

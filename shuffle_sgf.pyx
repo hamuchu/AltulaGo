@@ -26,12 +26,7 @@ from numpy import *
 import pickle as pickle
 import random
 import sys
-# sysモジュールをリロードする
-reload(sys)
-# デフォルトの文字コードを変更する
-sys.setdefaultencoding('utf-8')
-# デフォルトの文字コードを出力する
-print 'defaultencoding:', sys.getdefaultencoding()
+
 #import input_data#delete
 #パスはどうする？forwardした結果一番良い答えがパスかもしれない
 '''input_planeが変更になる可能性があり、データサイズも大きくなってしまうので
