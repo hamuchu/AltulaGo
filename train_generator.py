@@ -129,15 +129,15 @@ class ImageDataGenerator(object):
 
                 # ここまでを繰り返し行い、batch_sizeの数だけ配列(self.iamges, self.labels)に格納
                 # batch_sizeの数だけ格納されたら、戻り値として返し、配列(self.iamges, self.labels)を空にする
-                inputs = np.asarray(self.images, dtype=np.float32)
-                targets = np.asarray(self.labels, dtype=np.float32)
+
                 batch_size=500
-                for i in range(0,int(inputs.size/batch_size)):
-                    if int(inputs.size/batch_size)-1==i:
-                        pass
-                    else:
-                        yield inputs[i:i+batch_size], targets[i:i+batch_size]
+
+                for i in range(0,203999):
+                    print(int(self.images.size))
+                    yield self.images[i:i+batch_size], self.labels[i:i+batch_size]
                 #exit(0)
+                #736440
+                #368220000
 
 
 train_dir = pathlib.Path('../KifuLarge')
@@ -152,7 +152,7 @@ model_callback = keras.callbacks.ModelCheckpoint(filepath = fpath, verbose=1,mod
 
 model.fit_generator(
     generator=train_datagen.flow_from_directory(),
-    steps_per_epoch=204000,epochs=20,verbose=2,callbacks=[model_callback])
+    steps_per_epoch=10000,epochs=20,verbose=1,callbacks=[model_callback])
 
 model.save_weights('../Network/model_final.hdf5')
 
