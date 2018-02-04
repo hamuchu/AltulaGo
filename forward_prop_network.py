@@ -35,7 +35,7 @@ class ForwardPropNetwork(GoVariable):
         self.make_input = MakeInputPlane()
 
         self.model=self.Network()
-        self.model.load_weights('../Network/weights20.hdf5')
+        self.model.load_weights('../Network/weights70.hdf5')
 
         sys.stderr.write(str("Network Model builded"))
 

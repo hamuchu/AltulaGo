@@ -153,16 +153,14 @@ train_datagen = ImageDataGenerator()
 
 
 model = Network()
-#model.load_weights('../Network/model.hdf5')
+model.load_weights('../Network/weights20.hdf5')
 import keras
 fpath = '../Network/weights{epoch:02d}.hdf5'
 model_callback = keras.callbacks.ModelCheckpoint(filepath = fpath, verbose=1,mode='auto')
 
-
-
 model.fit_generator(
     generator=train_datagen.flow_from_directory(),
-    steps_per_epoch=10000,epochs=20,verbose=1,callbacks=[model_callback])
+    steps_per_epoch=10000,epochs=10000,verbose=1,callbacks=[model_callback])
 
 model.save_weights('../Network/model_final.hdf5')
 
